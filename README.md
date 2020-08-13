@@ -2,7 +2,8 @@
 
 by Justin Ventura.  
 
-*Dr. Joseph Anderson: * http://faculty.salisbury.edu/~jtanderson/
+*Dr. Joseph Anderson:* 
+http://faculty.salisbury.edu/~jtanderson/
 
 ## Class/Repository Description
 
