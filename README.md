@@ -7,7 +7,11 @@ http://faculty.salisbury.edu/~jtanderson/
 
 ## Class/Repository Description
 
+COSC311 - Introduction to Data Visualization and Interpretation.
+
+
 **Class:** 
+
 Provides a foundation in the area of data science base on data curation an statistical analysis. Learn data analysis concepts an techniques that facilitate making decisions from a rich data set. Investigate data concepts, meta data creation and interpretation, machine learning, and basics of information visualization. Learn fundamentals about data standards an methods for organizing, curating, preserving data for reuse, drawing conclusions and making decisions from data. Understan how to use data analysis tools for data manipulation, analysis and visualization. Includes discussions on diverse issues around data, including technologies, behaviors, organizations, policies, and society.
 
 **Repository:**
