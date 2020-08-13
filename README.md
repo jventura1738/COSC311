@@ -17,3 +17,9 @@ Provides a foundation in the area of data science base on data curation an stati
 **Repository:**
 
 This repository will include any labs, homeworks, projects, or other material related to the class which requires coding.  This also includes any optional work completed by myself for enrichment in the same studies/topics discussed and practiced in this class (COSC311).  There may also be any written work uploaded for the sake of being documented and saved for future reference.
+
+
+Elon Musk:
+
+> "Artificial Intelligence will be the best or
+> worst thing ever for humanity."
