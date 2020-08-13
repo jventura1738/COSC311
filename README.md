@@ -7,7 +7,7 @@ http://faculty.salisbury.edu/~jtanderson/
 
 ## Class/Repository Description
 
-COSC311 - Introduction to Data Visualization and Interpretation.
+*COSC311 - Introduction to Data Visualization and Interpretation.*
 
 
 **Class:** 
