@@ -18,7 +18,7 @@ Any of the previously mentioned could be used for this.  Which one is the best a
 
 - (a) Sketch by hand or digitally an example of your idea, using the data you entered above.
 
-Please see the last python cell in the notebook for this answer.
+Please see the last python cell in the notebook or the .png file included in the directory for this answer.
 
 - (b) Investigate how you might get Python to automate the production of your idea. What libraries can you find that might be useful?
 
