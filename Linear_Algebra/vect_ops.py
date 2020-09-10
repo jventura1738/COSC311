@@ -8,13 +8,13 @@ import math
 Vector = List[float] # Defining a vector as a list of floats
 
 def add(u: Vector, v: Vector) -> Vector:
-    """this function adds vectors u and v to return the resulting 
+    """this function adds vectors u and v to return the resulting
     vector w defined by u + v."""
     assert(len(u) == len(v)), 'Vectors must be of the same dimension to add.'
     return [u_i + v_i for u_i, v_i in zip(u,v)]
 
 def subtract(u: Vector, v: Vector) -> Vector:
-    """this function subtracts vectors u and v to return the resulting 
+    """this function subtracts vectors u and v to return the resulting
     vector w defined by u - v."""
     assert(len(u) == len(v)), 'Vectors must be of the same dimension to add.'
     return [u_i - v_i for u_i, v_i in zip(u,v)]
