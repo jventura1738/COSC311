@@ -17,26 +17,43 @@ class R2vector:
     def __init__(self, x: float = 1, y: float = 1):
         self._x = x
         self._y = y
-        self._coords = (x, y)
 
+    # Operator Overloads.
     def __add__(self, other):
         return R2vector(self._x + other._x, self._y + other._y)
 
     def __sub__(self, other):
         return R2vector(self._x - other._x, self._y - other._y)
 
-    def dot_prod(self, v: R2vector) -> float:
+    def __eq__(self, other) -> bool:
+        return (self.coords == other.coords)
+
+    # Class Attribute Getters.
+    def get_x(self) -> float:
+        """ Returns x value as float. """
+        return self._x
+
+    def get_y(self) -> float:
+        """ Returns y value as float. """
+        return self._y
+
+    def coords(self) -> tuple:
+        """ Returns tuple with x and y values. """
+        return tuple(self._x, self._y)
+
+    # Vector Operations.
+    def dot_prod(self, _v) -> float:
         """ Computes the dot product of self & other vector. """
-        return sum(u_i * v_i for u_i, v_i in zip(self._coords, v._coords))
-    
-    def sum_of_squares(self, v) -> float:
+        return sum(u_i * v_i for u_i, v_i in zip(self.coords, _v.coords))
+
+    def sum_of_squares(self, _v) -> float:
         """ This function computes v_1 * v_1 + ... v_n * v_n """
-        return(self.dot_prod(v))
+        return(self.dot_prod(_v))
 
-    def magnitude(self, v: R2vector) -> float:
+    def magnitude(self, _v) -> float:
         """ This function computes length/magnitude of v """
-        return math.sqrt(sum_of_squares(v))
+        return sqrt(self.sum_of_squares(_v))
 
-    def distance(u: Vector, v: Vector) -> float:
+    def distance(self, _v) -> float:
         """ This function computes the distance between vectors u and v """
-        return magnitude(subtract(u, v))
+        return self.magnitude(self - _v)
