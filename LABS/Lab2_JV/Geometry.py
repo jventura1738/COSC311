@@ -3,7 +3,7 @@
 
 """
 This module defines the class for geometry. Please
-see the 'geometry.__doc__'
+see the 'Geometry.__doc__'
 """
 # For book keeping purposes.
 from typing import List, Dict
