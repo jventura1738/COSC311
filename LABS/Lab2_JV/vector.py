@@ -26,7 +26,7 @@ class R2vector:
         return R2vector(self._x - other._x, self._y - other._y)
 
     def __eq__(self, other) -> bool:
-        return (self.coords == other.coords)
+        return (self.coords() == other.coords())
 
     # Class Attribute Getters.
     def get_x(self) -> float:
