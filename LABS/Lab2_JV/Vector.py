@@ -1,8 +1,8 @@
 # Justin Ventura COSC311
-# Lab 2: vector.py
+# Lab 2: Vector.py
 
 """
-This module defines the vector class. Please see
+This module defines the Vector class. Please see
 the class's docstring for more information.
 """
 
