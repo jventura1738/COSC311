@@ -2,6 +2,7 @@
 # Lab 2: Geometry.py
 
 # OUTDATED!!!
+# Moved to ipynb.
 
 """
 This module defines the class for geometry. Please
