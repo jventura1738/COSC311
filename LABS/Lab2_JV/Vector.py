@@ -1,6 +1,8 @@
 # Justin Ventura COSC311
 # Lab 2: Vector.py
+
 # OUTDATED!!!
+# Moved to ipynb.
 
 """
 This module defines the Vector class. Please see
