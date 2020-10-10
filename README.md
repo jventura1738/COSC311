@@ -23,3 +23,7 @@ This repository will include any labs, homeworks, projects, or other material re
 
 > "Artificial Intelligence will be the best or
 > worst thing ever for humanity."
+
+## Data Science Projects:
+
+- Project 1 w/ Blaine Mason: soon...
