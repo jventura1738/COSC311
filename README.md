@@ -26,4 +26,8 @@ This repository will include any labs, homeworks, projects, or other material re
 
 ## Data Science Projects:
 
-- Project 1 w/ Blaine Mason: soon...
+### Project 1 w/ Blaine Mason:
+- Justin Ventura: Suicide Data
+- Blaine Mason: ???
+- Justin & Blaine: Titanic Data
+
