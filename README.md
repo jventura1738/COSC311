@@ -27,7 +27,6 @@ This repository will include any labs, homeworks, projects, or other material re
 ## Data Science Projects:
 
 ### Project 1 w/ Blaine Mason:
-- Justin Ventura: Suicide Data
+- Justin Ventura: Suicides from 1987-2016 Data
 - Blaine Mason: League of Legends Pro Match Data
 - Justin & Blaine: Titanic Data
-
