@@ -28,6 +28,6 @@ This repository will include any labs, homeworks, projects, or other material re
 
 ### Project 1 w/ Blaine Mason:
 - Justin Ventura: Suicide Data
-- Blaine Mason: ???
+- Blaine Mason: League of Legends Pro Match Data
 - Justin & Blaine: Titanic Data
 
