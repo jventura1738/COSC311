@@ -13,6 +13,36 @@ from typing import List  # Type annotations.
 from KNN_Model import knn_vector  # KNN Model.
 
 
+# Data splitting function (np train; n(p-1) testing)
+def partition(n: int, p: float, vectors: List[knn_vector]):
+    """ Partition the given knn_vectors into training/testing groups.
+        NOTE: this is done at random.
+    Args:
+        n [int]: number of knn_vectors.
+
+        p [float]: percentage for the training/testing split.
+
+        vectors [ List[knn_vector] ]: a list of all the vectors which will
+                be partitioned into two groups.
+
+    Returns:
+        test, train [ tuple( List[knn_vectors] ) ]: the partitioned data
+                    in two groups with lengths np & n(1-p) respectively.
+    """
+    # Assertions:
+    assert(vectors is not None), '[partition]: no vectors given!'
+    assert(n == len(vectors)), '[partition] n is not equal to # vectors.'
+    assert(0.1 <= p < 1), '[partition]: groups must be validly partitioned!'
+
+    # Perform the partioning:
+    train_size = int(n*p)
+    np.random.shuffle(vectors)
+    train, test = vectors[:train_size], vectors[train_size:]
+
+    # Return the training and testing:
+    return train, test
+
+
 # Function to clean/prune titanic data.
 def clean_titanic(titanic_data):
     """ Fixes missing values and removes unnessary data.
@@ -28,6 +58,13 @@ def clean_titanic(titanic_data):
     candidates = np.array(titanic_data.columns)
     new_titanic = titanic_data.copy()
 
+    # These fields either don't provide any useful information, or
+    # they have too many missing paramaters.
+    # Cabin: way much data is missing.
+    # Body: this only applies to non-survivors.
+    # Ticket: this is unique to each family.
+    # Boat: this only applies to survivors.
+    # Home.Dest: not useful to us.
     if 'cabin' in candidates:
         new_titanic = new_titanic.drop(['cabin'], axis=1)
 
@@ -40,6 +77,10 @@ def clean_titanic(titanic_data):
     if 'boat' in candidates:
         new_titanic = new_titanic.drop(['boat'], axis=1)
 
+    if 'home.dest' in candidates:
+        new_titanic = new_titanic.drop(['home.dest'], axis=1)
+
+    # Fill empty ages:
     if 'age' in candidates:
         mean = new_titanic['age'].mean()
         std = new_titanic['age'].std()
@@ -69,53 +110,18 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
 
         [integer]: dimension of the vector.
     """
+    # Preparing the new data.
     candidates = np.array(titanic_data.columns)
-    for c in candidates:
-        print(f'{c} has type :{type(c)}')
-        if c == 'pclass':
-            print('do the pclass')
-        elif c == 'survived':
-            print('do the survived')
-        elif c == 'sex':
-            print('do the sex')
-        elif c == 'age':
-            print('do the age')
-        elif c == 'sisb':
-            print('do the sibsp')
-        elif c == 'parch':
-            print('do the parch')
-        elif c == 'fare':
-            print('do the fare')
-        elif c == 'sex':
-            print('do the sex')
-    pass
+    new_titanic = titanic_data.copy()
 
+    # Naively fix all the data for KNN.
+    new_titanic['pclass'] = new_titanic['pclass'].astype(int)
+    new_titanic['survived'] = new_titanic['survived'].astype(int)
+    new_titanic['sibsp'] = new_titanic['sibsp'].astype(int)
+    new_titanic['parch'] = new_titanic['parch'].astype(int)
+    new_titanic['fare'] = new_titanic['fare'].astype(float)
+    new_titanic['age'] = new_titanic['age'].astype(float)
 
-# Data splitting function.
-def partition(n: int, p: float, vectors: List[knn_vector]):
-    """ Partition the given knn_vectors into training/testing groups.
-        NOTE: this is done at random.
-    Args:
-        n [int]: number of knn_vectors.
+    # TODO: FINISH FUNCTION
 
-        p [float]: percentage for the training/testing split.
-
-        vectors [ List[knn_vector] ]: a list of all the vectors which will
-                be partitioned into two groups.
-
-    Returns:
-        test, train [ tuple( List[knn_vectors] ) ]: the partitioned data
-                    in two groups with lengths np & n(1-p) respectively.
-    """
-    # Assertions:
-    assert(vectors is not None), '[partition]: no vectors given!'
-    assert(n == len(vectors)), '[partition] n is not equal to # vectors.'
-    assert(0.1 <= p < 1), '[partition]: groups must be validly partitioned!'
-
-    # Perform the partioning:
-    train_size = int(n*p)
-    np.random.shuffle(vectors)
-    train, test = vectors[:train_size], vectors[train_size:]
-
-    # Return the training and testing:
-    return train, test
+    return new_titanic
