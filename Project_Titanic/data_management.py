@@ -80,6 +80,9 @@ def clean_titanic(titanic_data):
     if 'home.dest' in candidates:
         new_titanic = new_titanic.drop(['home.dest'], axis=1)
 
+    if 'name' in candidates:
+        new_titanic = new_titanic.drop(['name'], axis=1)
+
     # Fill empty ages:
     if 'age' in candidates:
         mean = new_titanic['age'].mean()
@@ -90,9 +93,6 @@ def clean_titanic(titanic_data):
         age_slice[np.isnan(age_slice)] = rand_age
         new_titanic['age'] = age_slice
         new_titanic['age'] = new_titanic['age'].astype(float)
-
-    for c in candidates:
-        print('gamer')
 
     return new_titanic
 
@@ -107,14 +107,21 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
 
     Returns:
         [List[knn_vectors]]: formatted vectors for the kNN model.
-
-        [integer]: dimension of the vector.
     """
     # Preparing the new data.
-    candidates = np.array(titanic_data.columns)
     new_titanic = titanic_data.copy()
 
+    # NOTE: Calls helper function, modifies titanic data.
+    new_titanic = clean_titanic(new_titanic)
+
     # Naively fix all the data for KNN.
+    genders = {'male': 0, 'female': 1}
+    new_titanic['sex'] = new_titanic['sex'].map(genders)
+
+    embarkments = {'S': 0, 'C': 1, 'Q': 2, '?': 1}
+    new_titanic['embarked'] = new_titanic['embarked'].map(embarkments)
+
+    # Prepare data:
     new_titanic['pclass'] = new_titanic['pclass'].astype(int)
     new_titanic['survived'] = new_titanic['survived'].astype(int)
     new_titanic['sibsp'] = new_titanic['sibsp'].astype(int)
@@ -122,6 +129,15 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     new_titanic['fare'] = new_titanic['fare'].astype(float)
     new_titanic['age'] = new_titanic['age'].astype(float)
 
-    # TODO: FINISH FUNCTION
+    labels = new_titanic['survived'].to_numpy()
+    dim = new_titanic.shape[1]
 
-    return new_titanic
+    # Make vectors:
+    rows = list(new_titanic[0:-1].to_records(index=False))
+    results = [knn_vector(dim, list(r)) for r in rows]
+
+    # results = []
+    # for r in rows:
+    #     results.append(knn_vector(4, list(r)))
+
+    return results
