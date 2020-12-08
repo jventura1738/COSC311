@@ -83,12 +83,15 @@ def clean_titanic(titanic_data):
     if 'name' in candidates:
         new_titanic = new_titanic.drop(['name'], axis=1)
 
+    if 'fare' in candidates:
+        new_titanic = new_titanic.drop(['fare'], axis=1)
+
     # Fill empty ages:
     if 'age' in candidates:
-        mean = new_titanic['age'].mean()
+        median = new_titanic['age'].median()
         std = new_titanic['age'].std()
         is_null = new_titanic['age'].isnull().sum()
-        rand_age = np.random.randint(mean - std, mean + std, size=is_null)
+        rand_age = np.random.randint(median - std, median + std, size=is_null)
         age_slice = new_titanic['age'].copy()
         age_slice[np.isnan(age_slice)] = rand_age
         new_titanic['age'] = age_slice
@@ -115,10 +118,10 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     new_titanic = clean_titanic(new_titanic)
 
     # Naively fix all the data for KNN.
-    genders = {'male': 0, 'female': 1}
+    genders = {'male': 1, 'female': 2}
     new_titanic['sex'] = new_titanic['sex'].map(genders)
 
-    embarkments = {'S': 0, 'C': 1, 'Q': 2, '?': 1}
+    embarkments = {'S': 1, 'C': 2, 'Q': 3, '?': 1}
     new_titanic['embarked'] = new_titanic['embarked'].map(embarkments)
 
     # Prepare data:
@@ -126,19 +129,125 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     new_titanic['survived'] = new_titanic['survived'].astype(int)
     new_titanic['sibsp'] = new_titanic['sibsp'].astype(int)
     new_titanic['parch'] = new_titanic['parch'].astype(int)
-    new_titanic['fare'] = new_titanic['fare'].astype(float)
+    # new_titanic['fare'] = new_titanic['fare'].astype(float)
     new_titanic['age'] = new_titanic['age'].astype(float)
 
-    labels = new_titanic['survived'].to_list()
-    new_titanic = new_titanic.drop(['survived'], axis=1)
-    dim = new_titanic.shape[1]
+    # Lets make a new column!
+    genders, ages = new_titanic['sex'].to_list(), new_titanic['age'].to_list()
+    adult_male = [0] * new_titanic.shape[0]
 
-    # Make vectors:
+    i = 0
+    for g, a in zip(genders, ages):
+        if g == 0 and a >= 18:
+            adult_male[0] = 10
+        i += 1
+
+    new_titanic['adult_male'] = adult_male  # New column.
+
+    # Reorder the dataset.
+    cols = new_titanic.columns.to_list()
+    target = int(cols.index('survived'))
+    cols.pop(target)
+    cols.append('survived')
+
+    new_titanic = new_titanic[cols]
+    dim = new_titanic.shape[1] - 1
+
+    new_titanic['age'] = new_titanic['age'] / 100.0
+    # new_titanic['fare'] = new_titanic['fare'] / 100.0
+
+    # Convert the dataset to rows into KNN vectors.
     rows = list(new_titanic.to_records(index=False))
-    for r, l in zip(rows, labels):
-        r = list(r)
-        r.append(l)
-
     results = [knn_vector(dim, list(r)) for r in rows]
 
+    # Return the results.
     return results
+
+
+# KNN Prediction Function:
+def titanic_KNN(kmodel, kvects, verbose=False) -> None:
+    """K-Nearest Neighbors Prediction.
+
+    Args:
+        kmodel (kNN_Model): Performs KNN Prediction with this model.
+        kvect (List[knn_vector]): List of vector for KNN.
+        verbose (bool, optional): For logging. Defaults to False.
+
+    Returns:
+        None.
+    """
+    n = len(kvects)
+    assert(n > 0), 'Number of vectors must be positive!'
+
+    if verbose and n > 600:
+        print(f'[!] -> {n} rows may take a few moments...')
+
+    # These keep track of accuracy.
+    TS = TN = FS = FN = 0
+    correct = 0
+
+    predicted = 0
+
+    # Iterate through and test points:
+    for v in kvects:
+        true_label = int(v.get_label())
+        result = int(kmodel.predict(v.get_values()))
+
+        if result == 1:
+            predicted += 1
+
+        if result == true_label:
+            correct += 1
+            if result == 1:
+                TS += 1
+            if result == 0:
+                TN += 1
+        else:
+            if result == 1:
+                FS += 1
+            if result == 0:
+                FN += 1
+
+    print('\n λ Confusion Matrix λ', )
+    print('-'*20)
+    print(f'n={n} expected')
+    print('         S   NS')
+    print(f'model S  {TS} {FS} -> {TS + FS}')
+    print(f'guess NS {FN} {TN} -> {FN + TN}')
+    print('          v   v')
+    print(f'        {TS+FN} {FS+TN}')
+    print('-'*20)
+
+    if verbose:
+        print('STATS: ')
+        print(f'Numerical Error: {abs(n - correct)}')
+        print(f'Precision: {correct/n * 100}%\n')
+
+
+# Titanic prediction function.
+def titanic_predictions(model=None, test_vects=None, verbose=False) -> None:
+    """ Predicts Titanic Data based on model presented.
+
+    Args:
+        model (ML Model): The KNN Model.
+        test_vects (knn_vector): [description]
+        verbose (bool, optional): For logging. Defaults to False.
+
+    Returns:
+        None.
+    """
+    assert(model is not None), 'Machine Learning Model must be provided!'
+
+    # K-Nearest Neighbor Predictions:
+    if model.name == 'kNN_Model':
+        if verbose:
+            print('[!] -> Logging K-Nearest Neighbors Predictions.')
+
+        titanic_KNN(kmodel=model, kvects=test_vects, verbose=verbose)
+
+        if verbose:
+            print('[!] -> End Logging K-Nearest Neighbors Predictions.')
+
+    # Others
+    else:
+        print('do nothing')

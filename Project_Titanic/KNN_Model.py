@@ -13,6 +13,9 @@ from typing import List  # For type hinting.
 from scipy import stats  # Makes my life easier
 
 
+# -----------------------------------------------------------------------------
+
+
 # Vector Class for the k-Nearest Neighbor Class.
 class knn_vector:
     """ k-Nearest Neighbor vector class.
@@ -32,7 +35,7 @@ class knn_vector:
             vals [list]: the actual list for quantitative data + the class.
         """
         assert(dim and vals), '[init k_vect]: missing paramters!'
-        assert(len(vals) - 1 == dim), f'[init k_vect]: {dim} != len(values).'
+        assert(len(vals) - 1 == dim), f'[k_vect()]: {dim} != len {len(vals)}.'
 
         # Create the vector.
         self.dimensions = dim
@@ -80,6 +83,9 @@ class knn_vector:
         return f'Vect: {self.values}, Label: {self.label}'
 
 
+# -----------------------------------------------------------------------------
+
+
 # K-Nearest Neighbor Class.
 class kNN_Model:
     """ k-Nearest Neighbors Model Class.
@@ -101,6 +107,7 @@ class kNN_Model:
         """
         self.k = k
         self.training_vect = train_vect
+        self.name = 'kNN_Model'
 
     # Calculate the distances of each train vector from the test vector.
     def distances(self, test_v=None) -> list:
@@ -155,6 +162,9 @@ class kNN_Model:
         # Get the 'votes' from the candidates and return the 'winner.'
         candidates = [d[1] for d in dist[:self.k]]
         return stats.mode(candidates)[0]
+
+
+# -----------------------------------------------------------------------------
 
 
 # Main for directly running the script.
