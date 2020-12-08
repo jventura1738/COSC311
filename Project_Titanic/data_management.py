@@ -26,7 +26,7 @@ def partition(n: int, p: float, vectors: List[knn_vector]):
                 be partitioned into two groups.
 
     Returns:
-        test, train [ tuple( List[knn_vectors] ) ]: the partitioned data
+        train, test [ tuple( List[knn_vectors] ) ]: the partitioned data
                     in two groups with lengths np & n(1-p) respectively.
     """
     # Assertions:
@@ -121,7 +121,7 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     genders = {'male': 1, 'female': 2}
     new_titanic['sex'] = new_titanic['sex'].map(genders)
 
-    embarkments = {'S': 1, 'C': 2, 'Q': 3, '?': 1}
+    embarkments = {'S': 1, 'C': 9, 'Q': 4, '?': 1}
     new_titanic['embarked'] = new_titanic['embarked'].map(embarkments)
 
     # Prepare data:
@@ -174,7 +174,7 @@ def titanic_KNN(kmodel, kvects, verbose=False) -> None:
         verbose (bool, optional): For logging. Defaults to False.
 
     Returns:
-        None.
+        float : precision percentage score of the trial.
     """
     n = len(kvects)
     assert(n > 0), 'Number of vectors must be positive!'
@@ -223,6 +223,9 @@ def titanic_KNN(kmodel, kvects, verbose=False) -> None:
         print(f'Numerical Error: {abs(n - correct)}')
         print(f'Precision: {correct/n * 100}%\n')
 
+    # Return the accuracy percentage.
+    return correct/n * 100
+
 
 # Titanic prediction function.
 def titanic_predictions(model=None, test_vects=None, verbose=False) -> None:
@@ -234,7 +237,7 @@ def titanic_predictions(model=None, test_vects=None, verbose=False) -> None:
         verbose (bool, optional): For logging. Defaults to False.
 
     Returns:
-        None.
+        float : precision percentage score of the ML trial.
     """
     assert(model is not None), 'Machine Learning Model must be provided!'
 
@@ -243,7 +246,7 @@ def titanic_predictions(model=None, test_vects=None, verbose=False) -> None:
         if verbose:
             print('[!] -> Logging K-Nearest Neighbors Predictions.')
 
-        titanic_KNN(kmodel=model, kvects=test_vects, verbose=verbose)
+        score = titanic_KNN(kmodel=model, kvects=test_vects, verbose=verbose)
 
         if verbose:
             print('[!] -> End Logging K-Nearest Neighbors Predictions.')
@@ -251,3 +254,5 @@ def titanic_predictions(model=None, test_vects=None, verbose=False) -> None:
     # Others
     else:
         print('do nothing')
+
+    return score
