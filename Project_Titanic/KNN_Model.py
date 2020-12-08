@@ -32,7 +32,7 @@ class knn_vector:
             vals [list]: the actual list for quantitative data + the class.
         """
         assert(dim and vals), '[init k_vect]: missing paramters!'
-        assert(len(vals) - 1 == dim), '[init k_vect]: dim != len(values).'
+        assert(len(vals) - 1 == dim), f'[init k_vect]: {dim} != len(values).'
 
         # Create the vector.
         self.dimensions = dim

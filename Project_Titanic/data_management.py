@@ -129,15 +129,16 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     new_titanic['fare'] = new_titanic['fare'].astype(float)
     new_titanic['age'] = new_titanic['age'].astype(float)
 
-    labels = new_titanic['survived'].to_numpy()
+    labels = new_titanic['survived'].to_list()
+    new_titanic = new_titanic.drop(['survived'], axis=1)
     dim = new_titanic.shape[1]
 
     # Make vectors:
-    rows = list(new_titanic[0:-1].to_records(index=False))
-    results = [knn_vector(dim, list(r)) for r in rows]
+    rows = list(new_titanic.to_records(index=False))
+    for r, l in zip(rows, labels):
+        r = list(r)
+        r.append(l)
 
-    # results = []
-    # for r in rows:
-    #     results.append(knn_vector(4, list(r)))
+    results = [knn_vector(dim, list(r)) for r in rows]
 
     return results
