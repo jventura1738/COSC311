@@ -11,10 +11,11 @@ import numpy as np  # Ol' Reliable.
 # import pandas as pd  # Dataframes.
 from typing import List  # Type annotations.
 from KNN_Model import knn_vector  # KNN Model.
+from visualizations import BOLD, ENDC  # Visualization.
 
 
 # Data splitting function (np train; n(p-1) testing)
-def partition(n: int, p: float, vectors: List[knn_vector]):
+def partition(n: int, p: float, vectors: List[knn_vector], rand: bool = False):
     """ Partition the given knn_vectors into training/testing groups.
         NOTE: this is done at random.
     Args:
@@ -24,6 +25,8 @@ def partition(n: int, p: float, vectors: List[knn_vector]):
 
         vectors [ List[knn_vector] ]: a list of all the vectors which will
                 be partitioned into two groups.
+
+        rand [bool, optional]: random partitions, defaults to False.
 
     Returns:
         train, test [ tuple( List[knn_vectors] ) ]: the partitioned data
@@ -36,7 +39,8 @@ def partition(n: int, p: float, vectors: List[knn_vector]):
 
     # Perform the partioning:
     train_size = int(n*p)
-    np.random.shuffle(vectors)
+    if rand:
+        np.random.shuffle(vectors)
     train, test = vectors[:train_size], vectors[train_size:]
 
     # Return the training and testing:
@@ -83,18 +87,18 @@ def clean_titanic(titanic_data):
     if 'name' in candidates:
         new_titanic = new_titanic.drop(['name'], axis=1)
 
-    if 'fare' in candidates:
-        new_titanic = new_titanic.drop(['fare'], axis=1)
+    # if 'fare' in candidates:
+    #     new_titanic = new_titanic.drop(['fare'], axis=1)
 
     # Fill empty ages:
     if 'age' in candidates:
-        median = new_titanic['age'].median()
+        mean = new_titanic['age'].mean()
         std = new_titanic['age'].std()
         is_null = new_titanic['age'].isnull().sum()
-        rand_age = np.random.randint(median - std, median + std, size=is_null)
-        age_slice = new_titanic['age'].copy()
-        age_slice[np.isnan(age_slice)] = rand_age
-        new_titanic['age'] = age_slice
+        rand_age = np.random.randint(mean - std, mean + std, size=is_null)
+        ages = new_titanic['age'].copy()
+        ages[np.isnan(ages)] = rand_age
+        new_titanic['age'] = ages
         new_titanic['age'] = new_titanic['age'].astype(float)
 
     return new_titanic
@@ -121,7 +125,7 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     genders = {'male': 1, 'female': 2}
     new_titanic['sex'] = new_titanic['sex'].map(genders)
 
-    embarkments = {'S': 1, 'C': 9, 'Q': 4, '?': 1}
+    embarkments = {'S': 1, 'C': 2, 'Q': 3, '?': 1}
     new_titanic['embarked'] = new_titanic['embarked'].map(embarkments)
 
     # Prepare data:
@@ -129,17 +133,17 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     new_titanic['survived'] = new_titanic['survived'].astype(int)
     new_titanic['sibsp'] = new_titanic['sibsp'].astype(int)
     new_titanic['parch'] = new_titanic['parch'].astype(int)
-    # new_titanic['fare'] = new_titanic['fare'].astype(float)
+    new_titanic['fare'] = new_titanic['fare'].astype(float)
     new_titanic['age'] = new_titanic['age'].astype(float)
 
     # Lets make a new column!
     genders, ages = new_titanic['sex'].to_list(), new_titanic['age'].to_list()
-    adult_male = [0] * new_titanic.shape[0]
+    adult_male = [1] * new_titanic.shape[0]
 
     i = 0
     for g, a in zip(genders, ages):
         if g == 0 and a >= 18:
-            adult_male[0] = 10
+            adult_male[0] = 2
         i += 1
 
     new_titanic['adult_male'] = adult_male  # New column.
@@ -153,8 +157,8 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     new_titanic = new_titanic[cols]
     dim = new_titanic.shape[1] - 1
 
-    new_titanic['age'] = new_titanic['age'] / 100.0
-    # new_titanic['fare'] = new_titanic['fare'] / 100.0
+    new_titanic['age'] = new_titanic['age'] / 10.0
+    new_titanic['fare'] = new_titanic['fare'] / 10.0
 
     # Convert the dataset to rows into KNN vectors.
     rows = list(new_titanic.to_records(index=False))
@@ -221,7 +225,7 @@ def titanic_KNN(kmodel, kvects, verbose=False) -> None:
     if verbose:
         print('STATS: ')
         print(f'Numerical Error: {abs(n - correct)}')
-        print(f'Precision: {correct/n * 100}%\n')
+        print(f'Precision: {BOLD}{correct/n * 100}%{ENDC}\n')
 
     # Return the accuracy percentage.
     return correct/n * 100
