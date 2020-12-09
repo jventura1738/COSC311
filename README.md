@@ -30,3 +30,8 @@ This repository will include any labs, homeworks, projects, or other material re
 - Justin Ventura: Suicides from 1987-2016 Data
 - Blaine Mason: League of Legends Pro Match Data
 - Justin & Blaine: Titanic Data
+
+### Project 2 w/ Blaine Mason:
+- Titanic Dataset.
+- K-Nearest Neighbors Implementation.
+- Neural Network (WIP).
