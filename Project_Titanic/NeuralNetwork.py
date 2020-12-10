@@ -60,11 +60,11 @@ class Tneural_network:
         self.network = [
             [
                 [np.random.random() for _ in range(input_len + 1)]
-                for _ in range(2 + 1)
+                for _ in range(2)
             ],
             [
-                [np.random.random() for _ in range(2 + 1)]
-                for _ in range(2 + 1)
+                [np.random.random() for _ in range(input_len)]
+                for _ in range(2)
             ],
             [
                 [np.random.random() for _ in range(2 + 1)]
@@ -72,22 +72,12 @@ class Tneural_network:
             ]
         ]
 
-        # self.layers = []
-
-        # first = [[np.random.random() for _ in range(input_len + 1)]
-        #          for _ in range(layer_shape[0])]  # 4 for now
-
-        # self.layers.append(first)
-
-        # for i in range(1, self.layer_count):
-        #     ll = layer_shape[i]
-        #     prev = layer_shape[i-1]
-        #     self.layers.append([[np.random.random() for _ in range(prev + 1)]
-        #                         for _ in range(ll)])
-
     # Training method:
-    def train_network(self, vectors) -> None:
+    def train_network(self, input_vector, target_vector) -> None:
         # TODO: Feed forward; backward propagation.
+        candidate = self.feed_forward(input_vector)
+        loss = self.get_loss(candidate[-1], target_vector)
+        print(loss)
         pass
 
     # Feeding helping method.
@@ -109,14 +99,16 @@ class Tneural_network:
             output = [Tneural_network.neuron_output(neuron, input_with_bias)
                       for neuron in layer]
 
-            print('output be like:')
-            print(output)
-
             outputs.append(output)
             input_vector = output
 
         # Returns the output of each layer.
         return outputs
+
+    # Calculate the loss of the result vector.
+    def get_loss(self, output_vector, target_vect):
+        return np.sqrt(sum([(o_i - t_i)**2
+                       for o_i, t_i in zip(output_vector, target_vect)]))
 
     # Function to print the weights [NOTE: DEBUGS]
     def get_weights(self):
@@ -135,7 +127,6 @@ class Tneural_network:
     # Static neuron output function.
     @staticmethod
     def neuron_output(weights, inputs) -> float:
-        print('\nNEURON ITERATION\n')
         return Tneural_network.sigmoid(np.dot(weights, inputs))
 
 
