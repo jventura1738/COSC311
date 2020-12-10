@@ -9,7 +9,7 @@ survived the titanic sinking or not.
 
 import math
 import numpy as np
-from typing import Iterable
+from typing import Iterable, List
 
 
 # -----------------------------------------------------------------------------
@@ -53,16 +53,37 @@ class Tneural_network:
     """ Neural Network class for the titanic dataset. """
 
     # Constructor.
-    def __init__(self, input_len: int, layer_len: int, layer_cnt: int) -> None:
+    def __init__(self, input_len: int, layer_shape: List[int] = None) -> None:
         # These are the layers of the neural network.
-        self.temp = layer_cnt
+        # self.layer_count = len(layer_shape)
 
-        self.w_in = [[np.random.random() for _ in range(input_len + 1)]
-                     for _ in range(4)]  # 4 for now
-        self.w_out = [[np.random.random() for _ in range(4)]
-                      for _ in range(2)]
+        self.network = [
+            [
+                [np.random.random() for _ in range(input_len + 1)]
+                for _ in range(2 + 1)
+            ],
+            [
+                [np.random.random() for _ in range(2 + 1)]
+                for _ in range(2 + 1)
+            ],
+            [
+                [np.random.random() for _ in range(2 + 1)]
+                for _ in range(2)
+            ]
+        ]
 
-        self.network = [self.w_in, self.w_out]
+        # self.layers = []
+
+        # first = [[np.random.random() for _ in range(input_len + 1)]
+        #          for _ in range(layer_shape[0])]  # 4 for now
+
+        # self.layers.append(first)
+
+        # for i in range(1, self.layer_count):
+        #     ll = layer_shape[i]
+        #     prev = layer_shape[i-1]
+        #     self.layers.append([[np.random.random() for _ in range(prev + 1)]
+        #                         for _ in range(ll)])
 
     # Training method:
     def train_network(self, vectors) -> None:
@@ -88,14 +109,18 @@ class Tneural_network:
             output = [Tneural_network.neuron_output(neuron, input_with_bias)
                       for neuron in layer]
 
+            print('output be like:')
+            print(output)
+
             outputs.append(output)
+            input_vector = output
 
         # Returns the output of each layer.
         return outputs
 
     # Function to print the weights [NOTE: DEBUGS]
     def get_weights(self):
-        return self.w_in, self.w_out
+        return self.network
 
     # Static sigmoid function.
     @staticmethod
@@ -110,6 +135,7 @@ class Tneural_network:
     # Static neuron output function.
     @staticmethod
     def neuron_output(weights, inputs) -> float:
+        print('\nNEURON ITERATION\n')
         return Tneural_network.sigmoid(np.dot(weights, inputs))
 
 
