@@ -45,20 +45,41 @@ class TNN_Vector:
         return sum([u_i * v_i for u_i, v_i in zip(u.data, v.data)])
 
 
+# -----------------------------------------------------------------------------
+
+
 # Neural Network Class
 class Tneural_network:
     """ Neural Network class for the titanic dataset. """
 
     # Constructor.
-    def __init__(self) -> None:
-        self.network = None
+    def __init__(self, input_len: int, layer_len: int, layer_cnt: int) -> None:
+        # These are the layers of the neural network.
+        self.temp = layer_cnt
+
+        self.w_in = [[np.random.random() for _ in range(input_len + 1)]
+                     for _ in range(4)]  # 4 for now
+        self.w_out = [[np.random.random() for _ in range(4)]
+                      for _ in range(2)]
+
+        self.network = [self.w_in, self.w_out]
 
     # Training method:
     def train_network(self, vectors) -> None:
+        # TODO: Feed forward; backward propagation.
         pass
 
     # Feeding helping method.
     def feed_forward(self, input_vector):
+        """ Forward process of the neural network, no backwards propagation.
+
+        Args:
+            input_vector (vector of data): Input vector for the network.
+
+        Returns:
+            [np.array]: The outputs of each layer.  To get the result of
+            the neural network, get index -1.
+        """
         outputs = []
 
         # Iterate layers of the neural network.
@@ -70,17 +91,21 @@ class Tneural_network:
             outputs.append(output)
 
         # Returns the output of each layer.
-        return np.array(outputs)
+        return outputs
 
-    # Static step function
-    @staticmethod
-    def step_func(t: float) -> float:
-        return 1.0 if t >= 0 else 0.0
+    # Function to print the weights [NOTE: DEBUGS]
+    def get_weights(self):
+        return self.w_in, self.w_out
 
     # Static sigmoid function.
     @staticmethod
     def sigmoid(t: float) -> float:
         return 1 / (1 + math.exp(-t))
+
+    # Static argmax function.
+    @staticmethod
+    def argmax(xs):
+        return max(range(len(xs)), key=lambda i: xs[i])
 
     # Static neuron output function.
     @staticmethod
