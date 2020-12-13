@@ -75,10 +75,14 @@ class Tneural_network:
     # Training method:
     def train_network(self, input_vector, target_vector) -> None:
         # TODO: Feed forward; backward propagation.
-        candidate = self.feed_forward(input_vector)
-        loss = self.get_loss(candidate[-1], target_vector)
-        print(loss)
-        pass
+        gamma = 1.0
+        gradients = self.sqerror_gradients(input_vector, target_vector)
+
+        self.network = [
+            [self.gradient_step(neuron, grad, -gamma)
+             for neuron, grad in zip(layer, layer_grad)]
+            for layer, layer_grad in zip(self.network, gradients)
+        ]
 
     # Feeding helping method.
     def feed_forward(self, input_vector):
@@ -103,16 +107,58 @@ class Tneural_network:
             input_vector = output
 
         # Returns the output of each layer.
-        return outputs
+        return outputs[:-1], outputs[-1]
 
-    # Calculate the loss of the result vector.
-    def get_loss(self, output_vector, target_vect):
-        return np.sqrt(sum([(o_i - t_i)**2
-                       for o_i, t_i in zip(output_vector, target_vect)]))
+    # New backprop
+    def backward_propagation(self, input_vector, target_vector):
+        pass
+
+    # Gradients of the squared error loss:
+    def sqerror_gradients(self, in_vect, targ_vect):
+        hidden_outputs, outputs = self.feed_forward(in_vect)
+
+        print(hidden_outputs)
+        print(outputs)
+
+        out_deltas = [output * (1 - output) * (output - target)
+                      for output, target in zip(in_vect, targ_vect)]
+
+        # output_grads = [[out_deltas[i] * hidden_output
+        #                  for hidden_output in hidden_outputs + [1]]
+        #                 for i, output_neuron in enumerate(self.network[-1])]
+        output_grads = [[np.dot(out_deltas[i], hidden_output)
+                         for hidden_output in hidden_outputs + [1]]
+                        for i, output_neuron in enumerate(self.network[-1])]
+
+        # hidden_deltas = [hidden_output * (1 - hidden_output) *
+        #                  np.dot(out_deltas, [n[i] for n in self.network[-1]])
+        #                  for i, hidden_output in enumerate(hidden_outputs)]
+
+        hidden_deltas = [hidden_output * (1 - hidden_output) *
+                         np.dot(out_deltas, [n[i] for n in self.network[-1]])
+                         for i, hidden_output in enumerate(hidden_outputs)]
+
+        hidden_grads = [[hidden_deltas[i] * input for input in in_vect + [1]]
+                        for i, hidden_neuron in enumerate(self.network[0])]
+
+        return [hidden_grads, output_grads]
 
     # Function to print the weights [NOTE: DEBUGS]
-    def get_weights(self):
+    def get_layers(self):
         return self.network
+
+    # Calculate the loss of the result vector.
+    @staticmethod
+    def squared_distance(output_vector, target_vect):
+        return sum([(o_i - t_i)**2
+                    for o_i, t_i in zip(output_vector, target_vect)])
+
+    # Gradient step method.
+    @staticmethod
+    def gradient_step(vect, gradient, step_size):
+        assert len(vect) == len(gradient)
+        step = [grad_i * step_size for grad_i in gradient]
+        return [v_i + s_i for v_i, s_i in zip(vect, step)]
 
     # Static sigmoid function.
     @staticmethod
