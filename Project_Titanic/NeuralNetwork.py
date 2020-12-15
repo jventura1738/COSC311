@@ -10,7 +10,8 @@ survived the titanic sinking or not.
 import math
 import numpy as np
 import numpy.matlib
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+# from matplotlib import cm
 
 
 # -----------------------------------------------------------------------------
@@ -86,50 +87,70 @@ class Tneural_network:
 
         print("Current loss: " + str(loss))
 
-        # Set up the plotting
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        plt.ion()
-        fig.show()
-        fig.canvas.draw()
-        plt.axis([-4, 4, -4, 4])
-        ax.axis([-4, 4, -4, 4])
+        # # Set up the plotting
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111)
+        # plt.ion()
+        # fig.show()
+        # fig.canvas.draw()
+        # plt.axis([-4, 4, -4, 4])
+        # ax.axis([-4, 4, -4, 4])
 
-        ax.clear()
-        p_x, p_y = (train_x[np.where(train_y == 1)]).T
-        ax.plot(p_x, p_y, 'ob')
-        p_x, p_y = (train_x[np.where(train_y == -1)]).T
-        ax.plot(p_x, p_y, 'or')
-        ax.axis([-4, 4, -4, 4])
+        # ax.clear()
+        # p_x, p_y = (train_x[np.where(train_y == 1)]).T
+        # ax.plot(p_x, p_y, 'ob')
+        # p_x, p_y = (train_x[np.where(train_y == -1)]).T
+        # ax.plot(p_x, p_y, 'or')
+        # ax.axis([-4, 4, -4, 4])
 
-        """
-        Plot the decision area contours
-        """
+        # """
+        # Plot the decision area contours
+        # """
 
-        # Set up some arrays to compute the contours, store in an image
-        im_x = np.arange(-4, 4, 0.1)
-        im_y = np.arange(-4, 4, 0.1)
-        im_X, im_Y = np.meshgrid(im_x, im_y)
+        # # Set up some arrays to compute the contours, store in an image
+        # im_x = np.arange(-4, 4, 0.1)
+        # im_y = np.arange(-4, 4, 0.1)
+        # im_X, im_Y = np.meshgrid(im_x, im_y)
 
-        # values
-        im_Z = []  # np.zeros(im_X.shape)
+        # # values
+        # im_Z = []  # np.zeros(im_X.shape)
 
-        # TODO: use list comp, zipping, and mapping for this, for-loop is slow
-        for j in range(len(im_X)):  # walk over rows
-            for i in range(len(im_X[0])):  # walk over columns
-                # Get the value for
-                # swap i and j to compensate for grid layout
-                # dat = np.append(dat, [1])  # add bias input
+        # # TODO: use list comp, zipping and mapping for this, for-loop is slow
+        # for j in range(len(im_X)):  # walk over rows
+        #     for i in range(len(im_X[0])):  # walk over columns
+        #         # Get the value for
+        #         # swap i and j to compensate for grid layout
+        #         # dat = np.append(dat, [1])  # add bias input
 
-                res, _ = self.feed_forward(dat)  # with bias
-                im_Z.append(res)
+        #         res, _ = self.feed_forward(dat)  # with bias
+        #         im_Z.append(res)
 
-        im_Z = numpy.array(im_Z).reshape(im_X.shape)
+        # im_Z = numpy.array(im_Z).reshape(im_X.shape)
 
-        # see the matplotlib contourf documentation
-        plt.contourf(im_X, im_Y, im_Z, cmap='RdBu', alpha=0.5)
-        fig.canvas.draw()
+        # # see the matplotlib contourf documentation
+        # cset1 = plt.contourf(im_X, im_Y, im_Z, cmap='RdBu', alpha=0.5)
+        # fig.canvas.draw()
         return None
+
+    # Actual Prediction method.
+    def titanic_network_predict(self, test_x, verbose: bool = False) -> float:
+        """ Prediction engineered for the titanic dataset.
+
+        Args:
+            test_x (np.array): The vector of values to test on.
+
+        Returns:
+            float: the result of the titanic vector.
+        """
+        # TODO: perhaps optimize for flexibility.
+        test_x = np.append(test_x, [1])  # This is for the bias.
+        res, _ = self.feed_forward(test_x)  # Feed forward for result.
+
+        # Logging:
+        if verbose:
+            print(f'Result from NN: {res}')
+
+        return res  # Result
 
     # Feeding helping method.
     def feed_forward(self, in_vect):
@@ -201,27 +222,59 @@ class Tneural_network:
     # Static neuron output function.
     @staticmethod
     def neuron_output(weights, inputs) -> float:
+        """[summary]
+
+        Args:
+            weights (np.array): Weight values as array.
+            inputs (np.array): Inputs 'into' the weights.
+
+        Returns:
+            float: The output of the neuron.
+        """
         return Tneural_network.sigmoid(np.dot(weights, inputs))
 
     # Static sigmoid function.
     @staticmethod
     def sigmoid(t: float) -> float:
+        """Sigmoid Activation Function.
+
+        Args:
+            t (float): Scalar to be evaluated.
+            or,
+            t (np.array): Applies sigmoid to whole array.
+
+        Returns:
+            float/np.array: Output of the sigmoid function.
+        """
         if isinstance(t, float):
             return 1 / (1 + math.exp(-t))
-        else:
+        else:  # Assume np.array ;)
             return np.array([1 / (1 + math.exp(-t_i)) for t_i in t])
 
     @staticmethod
-    def sigmoid_deriv(x: float) -> float:
-        tnn = Tneural_network
-        if isinstance(x, float):
-            return tnn.sigmoid(x) * (1 - tnn.sigmoid(x))
+    def sigmoid_deriv(t: float) -> float:
+        """Sigmoid Derivative: sig(x) * (1 - sig(x))
+
+        Args:
+            t (float): Scalar to be evaluated.
+            or,
+            t (np.array): Applies sigmoid to whole array.
+
+        Returns:
+            float/np.array: Output of the sigmoid derivative function.
+        """
+        tnn = Tneural_network  # Shorthand...
+        if isinstance(t, float):
+            return tnn.sigmoid(t) * (1 - tnn.sigmoid(t))
         else:
-            return np.array([tnn.sigmoid(x_i) * (1 - tnn.sigmoid(x_i))
-                             for x_i in x])
+            return np.array([tnn.sigmoid(t_i) * (1 - tnn.sigmoid(t_i))
+                             for t_i in t])
 
     # Reset method for the network.
     def reset(self):
+        """
+        Resets the networks weights (and biases).
+        """
         self.w_in = np.random.standard_normal((self.dim, self.layer_size))
         self.w_h = np.random.standard_normal((self.num_layers - 1,
                                               self.layer_size,
