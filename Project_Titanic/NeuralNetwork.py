@@ -53,36 +53,52 @@ class Tneural_network:
     """ Neural Network class for the titanic dataset. """
 
     # Constructor.
-    def __init__(self, input_len: int, layer_shape: List[int] = None) -> None:
-        # These are the layers of the neural network.
-        # self.layer_count = len(layer_shape)
+    def __init__(self, dim: int, num_layers: int, layer_size: int) -> None:
+        """Constuctor for the Neural Network Class.
 
-        self.network = [
-            [
-                [np.random.random() for _ in range(input_len + 1)]
-                for _ in range(2)
-            ],
-            [
-                [np.random.random() for _ in range(input_len)]
-                for _ in range(2)
-            ],
-            [
-                [np.random.random() for _ in range(2 + 1)]
-                for _ in range(2)
-            ]
-        ]
+        Args:
+            dim (int): Dimension of the input vector.
+            num_layers (int): Number of hidden layers.
+            layer_size (int): Nodes per layer (static).
+
+        Titanic Model will have the following structure:
+        3 -> 2 -> 2 -> 1
+
+        so we need:
+
+        w_in  = [2 x 4]
+        w_h   = [2 x 2]
+        w_out = [1 x 2]
+
+        """
+        # This is for the bias.
+        dim += 1
+
+        # These are the layers of the neural network.
+        # Input weights. Row i is the array of weights applied to x_i.
+        # self.w_in = np.random.standard_normal((dim, layer_size))
+        self.w_in = np.random.standard_normal((layer_size, dim))
+
+        # "Tensor" (3-dim array) of hidden-layer output weights.
+        # w_hidden[lay][i][j] is the weight between lay node i and lay+1 node j
+        self.w_h = np.random.standard_normal((num_layers-1,
+                                                   layer_size, layer_size))
+
+        # output weights, comes from last layer
+        self.w_out = np.random.standard_normal((1, layer_size))
 
     # Training method:
     def train_network(self, input_vector, target_vector) -> None:
         # TODO: Feed forward; backward propagation.
-        gamma = 1.0
-        gradients = self.sqerror_gradients(input_vector, target_vector)
+        # gamma = 1.0
+        # gradients = self.sqerror_gradients(input_vector, target_vector)
 
-        self.network = [
-            [self.gradient_step(neuron, grad, -gamma)
-             for neuron, grad in zip(layer, layer_grad)]
-            for layer, layer_grad in zip(self.network, gradients)
-        ]
+        # self.network = [
+        #     [self.gradient_step(neuron, grad, -gamma)
+        #      for neuron, grad in zip(layer, layer_grad)]
+        #     for layer, layer_grad in zip(self.network, gradients)
+        # ]
+        pass
 
     # Feeding helping method.
     def feed_forward(self, input_vector):
@@ -95,22 +111,60 @@ class Tneural_network:
             [np.array]: The outputs of each layer.  To get the result of
             the neural network, get index -1.
         """
-        outputs = []
+        # outputs = []
 
-        # Iterate layers of the neural network.
-        for layer in self.network:
-            input_with_bias = input_vector + [1]
-            output = [Tneural_network.neuron_output(neuron, input_with_bias)
-                      for neuron in layer]
+        # # Iterate layers of the neural network.
+        # for layer in self.network:
+        #     input_with_bias = input_vector + [1]
+        #     output = [Tneural_network.neuron_output(neuron, input_with_bias)
+        #               for neuron in layer]
 
-            outputs.append(output)
-            input_vector = output
+        #     outputs.append(output)
+        #     input_vector = output
 
-        # Returns the output of each layer.
-        return outputs[:-1], outputs[-1]
+        # # Returns the output of each layer.
+        # return outputs[-1], outputs
+        pass
 
     # New backprop
-    def backward_propagation(self, input_vector, target_vector):
+    def backward_propagation(self, input_vector, pred, label):
+        pass
+        # dEyo = pred - label  # scalar
+        # dExo = dEyo * sigmoid_deriv(np.dot(outputs[-1], outw[0])) # scalar
+        # dEwo =  dExo * outputs[-1]  #np.zeros((1, layer_size)) # out
+
+        # # hidden layer derivatives setup
+        # dEwh = np.zeros((num_layers-1, layer_size, layer_size))
+        # dExh = np.zeros((num_layers, layer_size))
+        # dEyh = np.zeros((num_layers, layer_size))
+
+        # # need to do output layer first, not a matrix product
+        # dEyh[-1] = outw * dExo # 1-by-h times scalar
+
+        # for i in range(num_layers-2,-1,-1):
+        #     # i-1 to get the inputs to layer i
+        #     x = outputs[i-1] @ hiddenw[i-1] # 1-by-h times h-by-h
+        #     dExh[i] = dEyh[i] * sigmoid_deriv(x) # 1-by-h
+        #     dEwh[i] = outputs[i-1] * dExh[i]
+        #     if i > 0:
+        #         # prep the next layer
+        #         dEyh[i-1] = hiddenw[i] @ dExh[i].T # h-by-h times h-by-1
+
+        # #dEwi = outputs[0] * dEyh[0] # take care of the input layer, again
+        #                             # not a matrix product
+        # data = numpy.array([data])
+        # dEwi = np.matlib.repmat(data.T, 1, layer_size) *
+        # np.matlib.repmat(dExh[0], dim, 1)
+        # # dim-by-h broadcast dim-by-h
+
+        # # adjust the hiden layer weights accoriding to the error.
+        # # Check to see that this follows gradient descent!
+        # hiddenw = hiddenw - rate * dEwh
+        # inw = inw - rate * dEwi
+        # outw[0] = outw[0] - rate * dEwo
+
+        # # return the new weights
+        # return inw, outw, hiddenw
         pass
 
     # Gradients of the squared error loss:
@@ -164,6 +218,10 @@ class Tneural_network:
     @staticmethod
     def sigmoid(t: float) -> float:
         return 1 / (1 + math.exp(-t))
+
+    @staticmethod
+    def sigmoid_derivative(x: float) -> float:
+        return Tneural_network.sigmoid(x) * (1 - Tneural_network.sigmoid(x))
 
     # Static argmax function.
     @staticmethod
