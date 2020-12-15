@@ -9,44 +9,11 @@ survived the titanic sinking or not.
 
 import math
 import numpy as np
-from typing import Iterable, List
+import numpy.matlib
+import matplotlib.pyplot as plt
 
 
 # -----------------------------------------------------------------------------
-
-
-# Titanic Neural Network Vector Class.
-class TNN_Vector:
-
-    # Constructor
-    def __init__(self, data: Iterable = None) -> None:
-        """ Constructor for TNN_Vector Class.
-
-        Args:
-            data (Iterable, optional): Data for vector. Defaults to None.
-
-        Returns:
-            None.
-        """
-        self.data = np.array(data) if data is not None else None
-
-    # Static method for dot product.
-    @staticmethod
-    def dot(u, v) -> float:
-        """ Dot product.
-
-        Args:
-            u (TNN_Vector): vect 1.
-            v (TNN_Vector): vect 2.
-
-        Returns:
-            float: dot product result.
-        """
-        return sum([u_i * v_i for u_i, v_i in zip(u.data, v.data)])
-
-
-# -----------------------------------------------------------------------------
-
 
 # Neural Network Class
 class Tneural_network:
@@ -54,7 +21,7 @@ class Tneural_network:
 
     # Constructor.
     def __init__(self, dim: int, num_layers: int, layer_size: int) -> None:
-        """Constuctor for the Neural Network Class.
+        """Constructor for the Neural Network Class.
 
         Args:
             dim (int): Dimension of the input vector.
@@ -71,37 +38,101 @@ class Tneural_network:
         w_out = [1 x 2]
 
         """
-        # This is for the bias.
-        dim += 1
+        self.dim = dim + 1  # Bias increment.
+        self.num_layers = num_layers
+        self.layer_size = layer_size
+        self.learning_rate = 0.1  # Gradient descent step.
 
         # These are the layers of the neural network.
         # Input weights. Row i is the array of weights applied to x_i.
-        # self.w_in = np.random.standard_normal((dim, layer_size))
-        self.w_in = np.random.standard_normal((layer_size, dim))
+        self.w_in = np.random.standard_normal((self.dim, layer_size))
 
         # "Tensor" (3-dim array) of hidden-layer output weights.
-        # w_hidden[lay][i][j] is the weight between lay node i and lay+1 node j
+        # w_h[lay][i][j] is the weight between lay node i and lay+1 node j.
         self.w_h = np.random.standard_normal((num_layers-1,
-                                                   layer_size, layer_size))
+                                              layer_size, layer_size))
 
-        # output weights, comes from last layer
+        # Output weights, comes from last layer.
         self.w_out = np.random.standard_normal((1, layer_size))
 
     # Training method:
-    def train_network(self, input_vector, target_vector) -> None:
-        # TODO: Feed forward; backward propagation.
-        # gamma = 1.0
-        # gradients = self.sqerror_gradients(input_vector, target_vector)
+    def train_network(self, train_x, train_y, num_rounds) -> None:
+        """Trains the network with given data and labels for n rounds.
 
-        # self.network = [
-        #     [self.gradient_step(neuron, grad, -gamma)
-        #      for neuron, grad in zip(layer, layer_grad)]
-        #     for layer, layer_grad in zip(self.network, gradients)
-        # ]
-        pass
+        Args:
+            train_x (np.array): training vectors.
+            train_y (np.array): labels to the x's.
+            num_rounds (int): number of training rounds.
+
+        Returns:
+            None, just trains network.
+        """
+        # TODO: Feed forward; backward propagation.
+
+        for i in range(1, num_rounds+1):
+            # Iterate each data point
+            loss = 0
+            for j in range(0, train_x.shape[0]):
+                dat = train_x[j]
+                dat = np.append(train_x[j], [1])
+
+                # Get the prediction for the point, using the current
+                # weights (model).
+                pred, vals = self.feed_forward(dat)
+                # Adjust the weights (model) to account for whether
+                # we're incorrect or not.
+                self.backward_propagation(vals, pred, dat, train_y[j])
+                loss += abs(pred - train_y[j])**2
+
+        print("Current loss: " + str(loss))
+
+        # Set up the plotting
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        plt.ion()
+        fig.show()
+        fig.canvas.draw()
+        plt.axis([-4, 4, -4, 4])
+        ax.axis([-4, 4, -4, 4])
+
+        ax.clear()
+        p_x, p_y = (train_x[np.where(train_y == 1)]).T
+        ax.plot(p_x, p_y, 'ob')
+        p_x, p_y = (train_x[np.where(train_y == -1)]).T
+        ax.plot(p_x, p_y, 'or')
+        ax.axis([-4, 4, -4, 4])
+
+        """
+        Plot the decision area contours
+        """
+
+        # Set up some arrays to compute the contours, store in an image
+        im_x = np.arange(-4, 4, 0.1)
+        im_y = np.arange(-4, 4, 0.1)
+        im_X, im_Y = np.meshgrid(im_x, im_y)
+
+        # values
+        im_Z = []  # np.zeros(im_X.shape)
+
+        # TODO: use list comp, zipping, and mapping for this, for-loop is slow
+        for j in range(len(im_X)):  # walk over rows
+            for i in range(len(im_X[0])):  # walk over columns
+                # Get the value for
+                # swap i and j to compensate for grid layout
+                # dat = np.append(dat, [1])  # add bias input
+
+                res, _ = self.feed_forward(dat)  # with bias
+                im_Z.append(res)
+
+        im_Z = numpy.array(im_Z).reshape(im_X.shape)
+
+        # see the matplotlib contourf documentation
+        plt.contourf(im_X, im_Y, im_Z, cmap='RdBu', alpha=0.5)
+        fig.canvas.draw()
+        return None
 
     # Feeding helping method.
-    def feed_forward(self, input_vector):
+    def feed_forward(self, in_vect):
         """ Forward process of the neural network, no backwards propagation.
 
         Args:
@@ -111,127 +142,92 @@ class Tneural_network:
             [np.array]: The outputs of each layer.  To get the result of
             the neural network, get index -1.
         """
-        # outputs = []
+        # 1-by-dim times dim-by-h
+        outs = np.array([self.sigmoid(in_vect @ self.w_in)])
+        for i in range(1, self.num_layers):
+            # i-1 here because w[i] is output weights
+            # get output of last layer (sig(x)) and weigh it into this layer
+            ins = outs[-1] @ self.w_h[i-1]  # 1-by-h times h-by-h
+            outs = np.append(outs, [self.sigmoid(ins)], axis=0)
 
-        # # Iterate layers of the neural network.
-        # for layer in self.network:
-        #     input_with_bias = input_vector + [1]
-        #     output = [Tneural_network.neuron_output(neuron, input_with_bias)
-        #               for neuron in layer]
-
-        #     outputs.append(output)
-        #     input_vector = output
-
-        # # Returns the output of each layer.
-        # return outputs[-1], outputs
-        pass
+        # last row of outs now holds the weighted output of last hidden layer
+        ret = self.sigmoid(outs[-1] @ self.w_out.T)
+        return ret[0], outs
 
     # New backprop
-    def backward_propagation(self, input_vector, pred, label):
-        pass
-        # dEyo = pred - label  # scalar
-        # dExo = dEyo * sigmoid_deriv(np.dot(outputs[-1], outw[0])) # scalar
-        # dEwo =  dExo * outputs[-1]  #np.zeros((1, layer_size)) # out
+    def backward_propagation(self, outputs, pred, in_vect, label):
+        """ Backward process of the neural network, no forward feeding.
 
-        # # hidden layer derivatives setup
-        # dEwh = np.zeros((num_layers-1, layer_size, layer_size))
-        # dExh = np.zeros((num_layers, layer_size))
-        # dEyh = np.zeros((num_layers, layer_size))
+        Args:
+            outputs (np.array): Outputs from the feed_forward().
+            pred (float): Predicted output.
+            in_vect (np.array): Input vector.
+            label (float): Expected output.
+        """
+        dEyo = pred - label  # Scalar 'cost.'
+        dExo = dEyo * self.sigmoid_deriv(np.dot(outputs[-1], self.w_out[0]))
+        dEwo = dExo * outputs[-1]
 
-        # # need to do output layer first, not a matrix product
-        # dEyh[-1] = outw * dExo # 1-by-h times scalar
+        # Hidden layer derivatives setup.
+        dEwh = np.zeros((self.num_layers-1, self.layer_size, self.layer_size))
+        dExh = np.zeros((self.num_layers, self.layer_size))
+        dEyh = np.zeros((self.num_layers, self.layer_size))
 
-        # for i in range(num_layers-2,-1,-1):
-        #     # i-1 to get the inputs to layer i
-        #     x = outputs[i-1] @ hiddenw[i-1] # 1-by-h times h-by-h
-        #     dExh[i] = dEyh[i] * sigmoid_deriv(x) # 1-by-h
-        #     dEwh[i] = outputs[i-1] * dExh[i]
-        #     if i > 0:
-        #         # prep the next layer
-        #         dEyh[i-1] = hiddenw[i] @ dExh[i].T # h-by-h times h-by-1
+        # Need to do output layer first, not a matrix product.
+        dEyh[-1] = self.w_out * dExo  # 1-by-h times scalar.
 
-        # #dEwi = outputs[0] * dEyh[0] # take care of the input layer, again
-        #                             # not a matrix product
-        # data = numpy.array([data])
-        # dEwi = np.matlib.repmat(data.T, 1, layer_size) *
-        # np.matlib.repmat(dExh[0], dim, 1)
-        # # dim-by-h broadcast dim-by-h
+        for i in range(self.num_layers - 2, -1, -1):
+            # i-1 to get the inputs to layer i.
+            x = outputs[i-1] @ self.w_h[i-1]  # 1-by-h times h-by-h.
+            dExh[i] = dEyh[i] * self.sigmoid_deriv(x)  # 1-by-h.
+            dEwh[i] = outputs[i-1] * dExh[i]
+            if i > 0:
+                # Prep the next layer.
+                dEyh[i-1] = self.w_h[i] @ dExh[i].T  # h-by-h times h-by-1.
 
-        # # adjust the hiden layer weights accoriding to the error.
-        # # Check to see that this follows gradient descent!
-        # hiddenw = hiddenw - rate * dEwh
-        # inw = inw - rate * dEwi
-        # outw[0] = outw[0] - rate * dEwo
+        # dEwi = outputs[0] * dEyh[0] # take care of the input layer, again
+        # not a matrix product.
+        in_vect = np.array([in_vect])
+        dEwi = (np.matlib.repmat(in_vect.T, 1, self.layer_size) *
+                np.matlib.repmat(dExh[0], self.dim, 1))
+        # dim-by-h broadcast dim-by-h.
 
-        # # return the new weights
-        # return inw, outw, hiddenw
-        pass
-
-    # Gradients of the squared error loss:
-    def sqerror_gradients(self, in_vect, targ_vect):
-        hidden_outputs, outputs = self.feed_forward(in_vect)
-
-        print(hidden_outputs)
-        print(outputs)
-
-        out_deltas = [output * (1 - output) * (output - target)
-                      for output, target in zip(in_vect, targ_vect)]
-
-        # output_grads = [[out_deltas[i] * hidden_output
-        #                  for hidden_output in hidden_outputs + [1]]
-        #                 for i, output_neuron in enumerate(self.network[-1])]
-        output_grads = [[np.dot(out_deltas[i], hidden_output)
-                         for hidden_output in hidden_outputs + [1]]
-                        for i, output_neuron in enumerate(self.network[-1])]
-
-        # hidden_deltas = [hidden_output * (1 - hidden_output) *
-        #                  np.dot(out_deltas, [n[i] for n in self.network[-1]])
-        #                  for i, hidden_output in enumerate(hidden_outputs)]
-
-        hidden_deltas = [hidden_output * (1 - hidden_output) *
-                         np.dot(out_deltas, [n[i] for n in self.network[-1]])
-                         for i, hidden_output in enumerate(hidden_outputs)]
-
-        hidden_grads = [[hidden_deltas[i] * input for input in in_vect + [1]]
-                        for i, hidden_neuron in enumerate(self.network[0])]
-
-        return [hidden_grads, output_grads]
-
-    # Function to print the weights [NOTE: DEBUGS]
-    def get_layers(self):
-        return self.network
-
-    # Calculate the loss of the result vector.
-    @staticmethod
-    def squared_distance(output_vector, target_vect):
-        return sum([(o_i - t_i)**2
-                    for o_i, t_i in zip(output_vector, target_vect)])
-
-    # Gradient step method.
-    @staticmethod
-    def gradient_step(vect, gradient, step_size):
-        assert len(vect) == len(gradient)
-        step = [grad_i * step_size for grad_i in gradient]
-        return [v_i + s_i for v_i, s_i in zip(vect, step)]
-
-    # Static sigmoid function.
-    @staticmethod
-    def sigmoid(t: float) -> float:
-        return 1 / (1 + math.exp(-t))
-
-    @staticmethod
-    def sigmoid_derivative(x: float) -> float:
-        return Tneural_network.sigmoid(x) * (1 - Tneural_network.sigmoid(x))
-
-    # Static argmax function.
-    @staticmethod
-    def argmax(xs):
-        return max(range(len(xs)), key=lambda i: xs[i])
+        # Adjust the hiden layer weights accoriding to the error.
+        # Check to see that this follows gradient descent!
+        self.w_h = self.w_h - self.learning_rate * dEwh
+        self.w_in = self.w_in - self.learning_rate * dEwi
+        self.w_out[0] = self.w_out[0] - self.learning_rate * dEwo
 
     # Static neuron output function.
     @staticmethod
     def neuron_output(weights, inputs) -> float:
         return Tneural_network.sigmoid(np.dot(weights, inputs))
+
+    # Static sigmoid function.
+    @staticmethod
+    def sigmoid(t: float) -> float:
+        if isinstance(t, float):
+            return 1 / (1 + math.exp(-t))
+        else:
+            return np.array([1 / (1 + math.exp(-t_i)) for t_i in t])
+
+    @staticmethod
+    def sigmoid_deriv(x: float) -> float:
+        tnn = Tneural_network
+        if isinstance(x, float):
+            return tnn.sigmoid(x) * (1 - tnn.sigmoid(x))
+        else:
+            return np.array([tnn.sigmoid(x_i) * (1 - tnn.sigmoid(x_i))
+                             for x_i in x])
+
+    # Reset method for the network.
+    def reset(self):
+        self.w_in = np.random.standard_normal((self.dim, self.layer_size))
+        self.w_h = np.random.standard_normal((self.num_layers - 1,
+                                              self.layer_size,
+                                              self.layer_size))
+
+        self.w_out = np.random.standard_normal((1, self.layer_size))
 
 
 # -----------------------------------------------------------------------------
