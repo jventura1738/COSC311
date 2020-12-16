@@ -100,7 +100,10 @@ def get_pclass_distributions(titanic_dataset):
 
 
 def get_sex_distributions(titanic_dataset):
-    titanic_dataset.sex.plot.bar()
+    genders = {'male': 0, 'female': 1}
+    titanic_dataset['sex'] = titanic_dataset['sex'].map(genders)
+    genders = titanic_dataset['sex'].to_numpy()
+
     plt.show()
 
 
