@@ -122,10 +122,10 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     new_titanic = clean_titanic(new_titanic)
 
     # Naively fix all the data for KNN.
-    genders = {'male': 1, 'female': 2}
+    genders = {'male': 0, 'female': 1}
     new_titanic['sex'] = new_titanic['sex'].map(genders)
 
-    embarkments = {'S': 1, 'C': 2, 'Q': 3, '?': 1}
+    embarkments = {'S': 0, 'C': 1, 'Q': 2, '?': 0}
     new_titanic['embarked'] = new_titanic['embarked'].map(embarkments)
 
     # Prepare data:
@@ -143,7 +143,7 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     i = 0
     for g, a in zip(genders, ages):
         if g == 0 and a >= 18:
-            adult_male[0] = 2
+            adult_male[0] = 1
         i += 1
 
     new_titanic['adult_male'] = adult_male  # New column.
