@@ -155,8 +155,6 @@ def get_sex_distributions(titanic_dataset):
     plt.bar(classes.keys(), classes.values(), color=colors)
     plt.bar(data.keys(), data.values(), color=colors2)
     plt.show()
-def get_swarm_sex_plot(titanic_dataset):
-    sns.swarmplot(x='sex', y='age', data=titanic_dataset, hue='survived')
 
 
 def get_parallel(titanic_dataset):
@@ -178,8 +176,13 @@ def get_correlation_heatmap(titanic_dataset):
     sn.heatmap(sex_survival.corr(), annot=True)
     plt.show()
 
-<<<<<<< HEAD
-=======
+
+def sun_plot(titanic_dataset):
+    sex_survival = titanic_dataset[['survived', 'age', 'pclass', 'sex']]
+    fig = px.sunburst(sex_survival, path=['sex', 'pclass', 'age'],
+                      values='survived')
+    fig.show()
+
 
 def get_parallel2(titanic_dataset):
     sex_survival = titanic_dataset[['survived', 'age', 'fare', 'sex']]
@@ -192,4 +195,3 @@ def get_parallel2(titanic_dataset):
                                           "Survival": 'survived'},
                                   color_continuous_scale=px.colors.sequential.Plotly3)
     fig.show()
->>>>>>> bf9d48d5b816195d22a3e33d6bbdea6cad5f05ae
