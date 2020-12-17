@@ -62,6 +62,33 @@ def load_titanic_dataset():
     return titanic
 
 
+def load_titanic_dataset2():
+    """ Import, clean, then return the Titanic Dataset """
+
+    # Import:
+    titanic = pd.read_csv('titanic_data.csv')  # Reads data nicely.
+    titanic = titanic[['survived', 'fare', 'age', 'sex']]
+
+    # Clean:
+    titanic.replace({'fare': {'?': np.nan}}, regex=False, inplace=True)
+    titanic.replace({'age': {'?': np.nan}}, regex=False, inplace=True)
+    titanic[['age']] = titanic[['age']].astype(float)
+    titanic[['fare']] = titanic[['fare']].astype(float)
+
+    # Fix missing ages.
+    mean = titanic['age'].mean()
+    std = titanic['age'].std()
+    is_null = titanic['age'].isnull().sum()
+    rand_age = np.random.randint(mean - std, mean + std, size=is_null)
+    ages = titanic['age'].copy()
+    ages[np.isnan(ages)] = rand_age
+    titanic['age'] = ages
+    titanic['age'] = titanic['age'].astype(float)
+
+    # Return the updated dataframe.
+    return titanic
+
+
 # Plots the age distribution of all passengers.
 def get_age_distributions(titanic_dataset):
     plt.rcParams['figure.figsize'] = [12, 6]
@@ -151,3 +178,18 @@ def get_correlation_heatmap(titanic_dataset):
     sn.heatmap(sex_survival.corr(), annot=True)
     plt.show()
 
+<<<<<<< HEAD
+=======
+
+def get_parallel2(titanic_dataset):
+    sex_survival = titanic_dataset[['survived', 'age', 'fare', 'sex']]
+    genders = {'male': 0, 'female': 1}
+    sex_survival['sex'] = sex_survival['sex'].map(genders)
+    fig = px.parallel_coordinates(sex_survival, color="survived",
+                                  labels={"Sex": 'sex',
+                                          "Age": 'age',
+                                          "Class": 'fare',
+                                          "Survival": 'survived'},
+                                  color_continuous_scale=px.colors.sequential.Plotly3)
+    fig.show()
+>>>>>>> bf9d48d5b816195d22a3e33d6bbdea6cad5f05ae
