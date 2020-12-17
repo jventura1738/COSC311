@@ -185,7 +185,13 @@ def sun_plot(titanic_dataset):
 
 
 def get_parallel2(titanic_dataset):
-    sex_survival = titanic_dataset[['survived', 'age', 'fare', 'sex']]
+    titanic_df_fare = load_titanic_dataset2()
+    temp = titanic_df_fare['fare'].to_numpy()
+    for i in range(len(temp)):
+        if(temp[i] > 300):
+            temp[i] = np.mean(temp)
+    titanic_df_fare[['fare']] = temp
+    sex_survival = titanic_df_fare[['survived', 'age', 'fare', 'sex']]
     genders = {'male': 0, 'female': 1}
     sex_survival['sex'] = sex_survival['sex'].map(genders)
     fig = px.parallel_coordinates(sex_survival, color="survived",
@@ -195,3 +201,27 @@ def get_parallel2(titanic_dataset):
                                           "Survival": 'survived'},
                                   color_continuous_scale=px.colors.sequential.Plotly3)
     fig.show()
+
+
+def neural_network_loss_plot(titanic_df, NN):
+    temp1 = titanic_df[['sex', 'age', 'pclass']]
+    temp2 = titanic_df[['survived']]
+    genders = {'male': 0, 'female': 1}
+    temp1['sex'] = temp1['sex'].map(genders)
+    xs = temp1.to_numpy()
+    ys = temp2.to_numpy()
+    full_set = np.array([(x, y) for x, y in zip(xs, ys)], dtype=object)
+
+    def split(n, p, vects):
+        np.random.shuffle(vects)
+        train_size = int(n*p)
+        return vects[:train_size], vects[train_size:]
+    train, test = split(len(full_set), 0.7, full_set)
+    loss = []
+
+    for i in range(1, 10):
+        loss.append(NN.train_network(train[:, 0], train[:, 1], num_rounds=100))
+
+    plt.plot(np.arange(100,1000,100), loss)
+
+
