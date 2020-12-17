@@ -86,7 +86,7 @@ class Tneural_network:
                 loss += abs(pred - train_y[j])**2
 
         print("Current loss: " + str(loss))
-
+        
         # # Set up the plotting
         # fig = plt.figure()
         # ax = fig.add_subplot(111)
@@ -130,7 +130,7 @@ class Tneural_network:
         # # see the matplotlib contourf documentation
         # cset1 = plt.contourf(im_X, im_Y, im_Z, cmap='RdBu', alpha=0.5)
         # fig.canvas.draw()
-        return None
+        return loss
 
     # Actual Prediction method.
     def titanic_network_predict(self, test_x, verbose: bool = False) -> float:
