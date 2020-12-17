@@ -101,6 +101,16 @@ def clean_titanic(titanic_data):
         new_titanic['age'] = ages
         new_titanic['age'] = new_titanic['age'].astype(float)
 
+    if 'fare' in candidates:
+        mean = new_titanic['fare'].mean()
+        std = new_titanic['fare'].std()
+        is_null = new_titanic['fare'].isnull().sum()
+        rand_fare = np.random.randint(mean - std, mean + std, size=is_null)
+        fare = new_titanic['fare'].copy()
+        fare[np.isnan(fare)] = rand_fare
+        new_titanic['fare'] = fare
+        new_titanic['fare'] = new_titanic['fare'].astype(float)
+
     return new_titanic
 
 
@@ -154,11 +164,33 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     cols.pop(target)
     cols.append('survived')
 
+    ag = new_titanic['age'].to_numpy()
+    ag_std = (ag - ag.min(axis=0)) / (ag.max(axis=0) - ag.min(axis=0))
+    new_titanic['age'] = ag_std
+
+    pc = new_titanic['pclass'].to_numpy()
+    pc_std = (pc - pc.min(axis=0)) / (pc.max(axis=0) - pc.min(axis=0))
+    new_titanic['pclass'] = pc_std
+
+    fa = new_titanic['fare'].to_numpy()
+
+    fa_std = (fa - fa.min(axis=0)) / (fa.max(axis=0) - fa.min(axis=0))
+    new_titanic['fare'] = fa_std
+
+    em = new_titanic['embarked'].to_numpy()
+    em_std = (em - em.min(axis=0)) / (em.max(axis=0) - em.min(axis=0))
+    new_titanic['embarked'] = em_std
+
+    pa = new_titanic['parch'].to_numpy()
+    pa_std = (pa - pa.min(axis=0)) / (pa.max(axis=0) - pa.min(axis=0))
+    new_titanic['parch'] = pa_std
+
+    si = new_titanic['sibsp'].to_numpy()
+    si_std = (si - si.min(axis=0)) / (si.max(axis=0) - si.min(axis=0))
+    new_titanic['sibsp'] = si_std
+
     new_titanic = new_titanic[cols]
     dim = new_titanic.shape[1] - 1
-
-    new_titanic['age'] = new_titanic['age']
-    new_titanic['fare'] = new_titanic['fare']
 
     # Convert the dataset to rows into KNN vectors.
     rows = list(new_titanic.to_records(index=False))
