@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 from collections import Counter
 import seaborn as sn
 import plotly.express as px
-from sklearn.preprocessing import MinMaxScaler
 
 
 HEADER = '\033[95m'
@@ -112,7 +111,7 @@ def get_sex_distributions(titanic_dataset):
     titanic_dataset['sex'] = titanic_dataset['sex'].map(genders)
     genders = titanic_dataset['sex'].to_numpy()
     survived = titanic_dataset['survived'].to_numpy()
-    data = {0:0, 1:0}
+    data = {0: 0, 1: 0}
     for i in range(len(genders)):
         if survived[i] == 1:
             data[genders[i]] += 1
@@ -128,16 +127,23 @@ def get_sex_distributions(titanic_dataset):
     plt.bar(classes.keys(), classes.values(), color=colors)
     plt.bar(data.keys(), data.values(), color=colors2)
     plt.show()
-def get_swarm_sex_plot(titanic_dataset):
-    sns.swarmplot(x='sex', y='age', data=titanic_dataset, hue='survived')
 
 
 def get_parallel(titanic_dataset):
     sex_survival = titanic_dataset[['survived', 'age', 'pclass', 'sex']]
     fig = px.parallel_coordinates(sex_survival, color="survived",
-                                  labels={"Sex":'sex', "Age":'age', "Class":'pclass',
-                                          "Survival":'survived'},
+                                  labels={"Sex": 'sex',
+                                          "Age": 'age',
+                                          "Class": 'pclass',
+                                          "Survival": 'survived'},
                                   color_continuous_scale=px.colors.sequential.Plotly3)
+    fig.show()
+
+
+def sun_plot(titanic_dataset):
+    sex_survival = titanic_dataset[['survived', 'age', 'pclass', 'sex']]
+    fig = px.sunburst(sex_survival, path=['sex', 'pclass', 'age'],
+                      values='survived')
     fig.show()
 
 
@@ -150,4 +156,3 @@ def get_correlation_heatmap(titanic_dataset):
     # Use seaborn for the heatmap then plot it:
     sn.heatmap(sex_survival.corr(), annot=True)
     plt.show()
-
