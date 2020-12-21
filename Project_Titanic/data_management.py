@@ -173,7 +173,6 @@ def titanic_to_vector(titanic_data) -> List[knn_vector]:
     new_titanic['pclass'] = pc_std
 
     fa = new_titanic['fare'].to_numpy()
-
     fa_std = (fa - fa.min(axis=0)) / (fa.max(axis=0) - fa.min(axis=0))
     new_titanic['fare'] = fa_std
 

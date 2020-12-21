@@ -206,8 +206,9 @@ def get_parallel2(titanic_dataset):
 def neural_network_loss_plot(titanic_df, NN):
     temp1 = titanic_df[['sex', 'age', 'pclass']]
     temp2 = titanic_df[['survived']]
-    genders = {'male': 0, 'female': 1}
+    genders = {'male': int(0), 'female': int(1)}
     temp1['sex'] = temp1['sex'].map(genders)
+    # temp1['sex'] = temp1['sex'].astype(int)
     xs = temp1.to_numpy()
     ys = temp2.to_numpy()
     full_set = np.array([(x, y) for x, y in zip(xs, ys)], dtype=object)
@@ -220,8 +221,8 @@ def neural_network_loss_plot(titanic_df, NN):
     loss = []
 
     for i in range(1, 10):
-        loss.append(NN.train_network(train[:, 0], train[:, 1], num_rounds=100))
+        loss.append(NN.train_network(train[:, 0], train[:, 1], num_rounds=250))
 
-    plt.plot(np.arange(100,1000,100), loss)
+    plt.plot(np.arange(250,2500,100), loss)
 
 
